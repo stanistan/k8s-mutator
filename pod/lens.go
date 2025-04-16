@@ -3,7 +3,7 @@ package pod
 import (
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/stanistan/mutator/lens"
+	"github.com/stanistan/mutator/internal/lens"
 )
 
 var (

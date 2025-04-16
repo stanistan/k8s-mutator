@@ -1,8 +1,9 @@
 package container
 
 import (
-	"github.com/stanistan/mutator/lens"
 	corev1 "k8s.io/api/core/v1"
+
+	"github.com/stanistan/mutator/internal/lens"
 )
 
 // Mutator mutates a *corev1.Container or error.
