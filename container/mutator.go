@@ -44,23 +44,32 @@ func Filtered(f Filter, m Mutator) Mutator {
 	})
 }
 
-var (
-	securityContextLens = lens.Lens[*corev1.SecurityContext, *corev1.Container, Container, MutatorFunc]{
-		Get:     func(c *corev1.Container) *corev1.SecurityContext { return c.SecurityContext },
-		Set:     func(c *corev1.Container, val *corev1.SecurityContext) { c.SecurityContext = val },
+func containerLens[T any](
+	get func(*corev1.Container) T,
+	set func(*corev1.Container, T),
+) lens.Lens[T, *corev1.Container, Container, MutatorFunc] {
+	return lens.Lens[T, *corev1.Container, Container, MutatorFunc]{
+		Get:     get,
+		Set:     set,
 		ToInner: func(c Container) *corev1.Container { return c.Container },
 	}
+}
+
+var (
+	securityContextLens = containerLens(
+		func(c *corev1.Container) *corev1.SecurityContext { return c.SecurityContext },
+		func(c *corev1.Container, val *corev1.SecurityContext) { c.SecurityContext = val },
+	)
 
 	UpdateSecurityContext = securityContextLens.Mutator
 	SetSecurityContext    = securityContextLens.InfallibleMutator
 )
 
 var (
-	resourceLens = lens.Lens[corev1.ResourceRequirements, *corev1.Container, Container, MutatorFunc]{
-		Get:     func(c *corev1.Container) corev1.ResourceRequirements { return c.Resources },
-		Set:     func(c *corev1.Container, val corev1.ResourceRequirements) { c.Resources = val },
-		ToInner: func(c Container) *corev1.Container { return c.Container },
-	}
+	resourceLens = containerLens(
+		func(c *corev1.Container) corev1.ResourceRequirements { return c.Resources },
+		func(c *corev1.Container, val corev1.ResourceRequirements) { c.Resources = val },
+	)
 
 	UpdateResources = resourceLens.Mutator
 	SetResources    = resourceLens.InfallibleMutator

@@ -26,6 +26,21 @@ func TestMutateContainer(t *testing.T) {
 		t.Fatal("expected security context set")
 	}
 
+	err = WithEnvVar("TEST", func(in corev1.EnvVar) (corev1.EnvVar, error) {
+		return corev1.EnvVar{Name: "TEST", Value: "TEST"}, nil
+	}).MutateContainer(c)
+	if err != nil {
+		t.Fatal("expected no error", "WithEnvVar mutator")
+	}
+
+	if len(container.Env) != 1 {
+		t.Fatal("expected one env var")
+	}
+
+	if container.Env[0].Name != "TEST" || container.Env[0].Value != "TEST" || container.Env[0].ValueFrom != nil {
+		t.Fatalf("expected one env var got %+v", container.Env[0])
+	}
+
 	containers := []corev1.Container{
 		{Name: "foo"},
 		{Name: "bar"},
