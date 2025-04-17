@@ -11,7 +11,7 @@ var (
 		func(c *corev1.Container) []corev1.EnvVar { return c.Env },
 		func(c *corev1.Container, envs []corev1.EnvVar) { c.Env = envs },
 	)
-	envVarsListLens = lens.ListLens[corev1.EnvVar, *corev1.Container, Container, MutatorFunc]{
+	envVarsListLens = lens.ListLens[corev1.EnvVar, Container, *corev1.Container, MutatorFunc]{
 		Lens:    envVarsLens,
 		Prepend: true,
 	}

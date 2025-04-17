@@ -23,6 +23,10 @@ type Container struct {
 	Init bool
 }
 
+func (c Container) AsInner() *corev1.Container {
+	return c.Container
+}
+
 func (c Container) Apply(m Mutator) error {
 	return m.MutateContainer(c)
 }

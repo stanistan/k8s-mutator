@@ -1,11 +1,11 @@
 package lens
 
-type ListLens[T, Inner, Outer any, Mutator ~func(Outer) error] struct {
-	Lens    Lens[[]T, Inner, Outer, Mutator]
+type ListLens[T any, Outer As[Inner], Inner any, Mutator ~func(Outer) error] struct {
+	Lens    Lens[[]T, Outer, Inner, Mutator]
 	Prepend bool
 }
 
-func (l ListLens[T, Inner, Outer, Mutator]) Mutator(matches func(T) bool, f UpdateFunc[T]) Mutator {
+func (l ListLens[T, Outer, Inner, Mutator]) Mutator(matches func(T) bool, f UpdateFunc[T]) Mutator {
 	return l.Lens.Mutator(func(items []T) ([]T, error) {
 		for idx, value := range items {
 			if matches(value) {
@@ -33,6 +33,6 @@ func (l ListLens[T, Inner, Outer, Mutator]) Mutator(matches func(T) bool, f Upda
 	})
 }
 
-func (l ListLens[T, Inner, Outer, Mutator]) InfallibleMutator(matches func(T) bool, val T) Mutator {
+func (l ListLens[T, Outer, Inner, Mutator]) InfallibleMutator(matches func(T) bool, val T) Mutator {
 	return l.Mutator(matches, InfallibleUpdate(val))
 }

@@ -18,6 +18,10 @@ func (p Pod) Apply(m Mutator) error {
 	return m.MutatePod(p)
 }
 
+func (p Pod) AsInner() *corev1.Pod {
+	return p.Pod
+}
+
 func (p Pod) ApplyContainerMutator(m c.Mutator) error {
 	if err := c.NewInitContainers(&p.Spec.InitContainers).Apply(m); err != nil {
 		return err

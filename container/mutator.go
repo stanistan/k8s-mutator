@@ -47,12 +47,8 @@ func Filtered(f Filter, m Mutator) Mutator {
 func containerLens[T any](
 	get func(*corev1.Container) T,
 	set func(*corev1.Container, T),
-) lens.Lens[T, *corev1.Container, Container, MutatorFunc] {
-	return lens.Lens[T, *corev1.Container, Container, MutatorFunc]{
-		Get:     get,
-		Set:     set,
-		ToInner: func(c Container) *corev1.Container { return c.Container },
-	}
+) lens.Lens[T, Container, *corev1.Container, MutatorFunc] {
+	return lens.Lens[T, Container, *corev1.Container, MutatorFunc]{Get: get, Set: set}
 }
 
 var (
