@@ -1,18 +1,8 @@
 package lens
 
-// UpdateFunc is a function that takes in a current
-// value T and produces a new one, or an error. Returning
-// the inital value and nil is effectively a noop.
-type UpdateFunc[T any] func(T) (T, error)
-
-// InfallibleUpdate returns an UpdateFunc that always
-// returns the given value regardless of the current
-// value provided.
-func InfallibleUpdate[T any](val T) UpdateFunc[T] {
-	return func(_ T) (T, error) {
-		return val, nil
-	}
-}
+import (
+	"github.com/stanistan/mutator/internal/lens/update"
+)
 
 // Lens is a datatype that abstracts over getting a value V
 // and setting a value V in a container C.
@@ -21,7 +11,7 @@ type Lens[C, V any, F ~func(C) error] struct {
 	Get func(C) V
 }
 
-func (l Lens[C, V, F]) Updator(fn UpdateFunc[V]) F {
+func (l Lens[C, V, F]) Do(fn update.Apply[V]) F {
 	return func(c C) error {
 		newVal, err := fn(l.Get(c))
 		if err != nil {
@@ -32,6 +22,8 @@ func (l Lens[C, V, F]) Updator(fn UpdateFunc[V]) F {
 	}
 }
 
-func (l Lens[C, V, F]) InfallibleUpdator(val V) F {
-	return l.Updator(InfallibleUpdate(val))
+func Infallible[C, V any, F ~func(C) error](l Lens[C, V, F]) func(V) F {
+	return func(v V) F {
+		return l.Do(update.Infallible(v))
+	}
 }

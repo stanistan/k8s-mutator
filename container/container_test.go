@@ -26,7 +26,9 @@ func TestMutateContainer(t *testing.T) {
 		t.Fatal("expected security context set")
 	}
 
-	err = InjectEnvVar(corev1.EnvVar{Name: "TEST", Value: "TEST"}).MutateContainer(c)
+	err = AppendEnvVar(corev1.EnvVar{
+		Name: "TEST", Value: "TEST",
+	}).MutateContainer(c)
 	if err != nil {
 		t.Fatal("expected no error", "WithEnvVar mutator")
 	}

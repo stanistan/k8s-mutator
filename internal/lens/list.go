@@ -1,19 +1,18 @@
 package lens
 
+import (
+	"github.com/stanistan/mutator/internal/lens/update"
+)
+
 type ListLens[C, V any, F ~func(C) error] struct {
 	Lens    Lens[C, []V, F]
 	Prepend bool
 }
 
-type ListUpdate[V any] struct {
-	Apply   UpdateFunc[V]
-	Matches func(V) bool
-}
-
-func (l ListLens[C, V, F]) Updator(f ListUpdate[V]) F {
-	return l.Lens.Updator(func(items []V) ([]V, error) {
+func (l ListLens[C, V, F]) Do(f update.Maybe[V]) F {
+	return l.Lens.Do(func(items []V) ([]V, error) {
 		for idx, value := range items {
-			if f.Matches(value) {
+			if f.Match(value) {
 				out, err := f.Apply(value)
 				if err != nil {
 					return nil, err

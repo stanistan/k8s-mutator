@@ -4,6 +4,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/stanistan/mutator/internal/lens"
+	"github.com/stanistan/mutator/internal/lens/update"
 )
 
 var (
@@ -12,8 +13,8 @@ var (
 		func(c *corev1.Container, val *corev1.SecurityContext) { c.SecurityContext = val },
 	)
 
-	UpdateSecurityContext = securityContextLens.Updator
-	SetSecurityContext    = securityContextLens.InfallibleUpdator
+	UpdateSecurityContext = securityContextLens.Do
+	SetSecurityContext    = lens.Infallible(securityContextLens)
 )
 
 var (
@@ -22,8 +23,8 @@ var (
 		func(c *corev1.Container, val corev1.ResourceRequirements) { c.Resources = val },
 	)
 
-	UpdateResources = resourceLens.Updator
-	SetResources    = resourceLens.InfallibleUpdator
+	UpdateResources = resourceLens.Do
+	SetResources    = lens.Infallible(resourceLens)
 )
 
 var (
@@ -32,20 +33,23 @@ var (
 		func(c *corev1.Container, envs []corev1.EnvVar) { c.Env = envs },
 	)
 	envVarsListLens = lens.ListLens[Container, corev1.EnvVar, MutatorFunc]{
-		Lens:    envVarsLens,
-		Prepend: true,
+		Lens: envVarsLens,
 	}
 )
 
 var (
-	WithEnvVar = envVarsListLens.Updator
+	WithEnvVar = envVarsListLens.Do
 )
 
-func InjectEnvVar(v corev1.EnvVar) Mutator {
-	return WithEnvVar(lens.ListUpdate[corev1.EnvVar]{
-		Matches: func(in corev1.EnvVar) bool { return in.Name == v.Name },
-		Apply:   func(_ corev1.EnvVar) (corev1.EnvVar, error) { return v, nil },
-	})
+func envVarUpdate(v corev1.EnvVar) update.Maybe[corev1.EnvVar] {
+	return update.Maybe[corev1.EnvVar]{
+		Match: func(in corev1.EnvVar) bool { return in.Name == v.Name },
+		Apply: func(_ corev1.EnvVar) (corev1.EnvVar, error) { return v, nil },
+	}
+}
+
+func AppendEnvVar(v corev1.EnvVar) Mutator {
+	return WithEnvVar(envVarUpdate(v))
 }
 
 func containerLens[T any](
