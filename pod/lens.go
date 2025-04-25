@@ -9,8 +9,11 @@ import (
 func podLens[T any](
 	get func(*corev1.Pod) T,
 	set func(*corev1.Pod, T),
-) lens.Lens[T, Pod, *corev1.Pod, MutatorFunc] {
-	return lens.Lens[T, Pod, *corev1.Pod, MutatorFunc]{Get: get, Set: set}
+) lens.Lens[Pod, T, MutatorFunc] {
+	return lens.Lens[Pod, T, MutatorFunc]{
+		Get: func(p Pod) T { return get(p.Pod) },
+		Set: func(p Pod, v T) { set(p.Pod, v) },
+	}
 }
 
 var (
@@ -19,7 +22,7 @@ var (
 		func(pod *corev1.Pod, cs []corev1.Container) { pod.Spec.InitContainers = cs },
 	)
 
-	initContainersListLens = lens.ListLens[corev1.Container, Pod, *corev1.Pod, MutatorFunc]{
+	initContainersListLens = lens.ListLens[Pod, corev1.Container, MutatorFunc]{
 		Lens:    initContainersLens,
 		Prepend: true,
 	}

@@ -1,15 +1,20 @@
 package lens
 
-type ListLens[T any, Outer As[Inner], Inner any, Mutator ~func(Outer) error] struct {
-	Lens    Lens[[]T, Outer, Inner, Mutator]
+type ListLens[C, V any, F ~func(C) error] struct {
+	Lens    Lens[C, []V, F]
 	Prepend bool
 }
 
-func (l ListLens[T, Outer, Inner, Mutator]) Mutator(matches func(T) bool, f UpdateFunc[T]) Mutator {
-	return l.Lens.Mutator(func(items []T) ([]T, error) {
+type ListUpdate[V any] struct {
+	Apply   UpdateFunc[V]
+	Matches func(V) bool
+}
+
+func (l ListLens[C, V, F]) Updator(f ListUpdate[V]) F {
+	return l.Lens.Updator(func(items []V) ([]V, error) {
 		for idx, value := range items {
-			if matches(value) {
-				out, err := f(value)
+			if f.Matches(value) {
+				out, err := f.Apply(value)
 				if err != nil {
 					return nil, err
 				}
@@ -19,20 +24,16 @@ func (l ListLens[T, Outer, Inner, Mutator]) Mutator(matches func(T) bool, f Upda
 			}
 		}
 
-		var empty T
-		out, err := f(empty)
+		var empty V
+		out, err := f.Apply(empty)
 		if err != nil {
 			return nil, err
 		}
 
 		if l.Prepend {
-			return append([]T{out}, items...), nil
+			return append([]V{out}, items...), nil
 		}
 
 		return append(items, out), nil
 	})
-}
-
-func (l ListLens[T, Outer, Inner, Mutator]) InfallibleMutator(matches func(T) bool, val T) Mutator {
-	return l.Mutator(matches, InfallibleUpdate(val))
 }
