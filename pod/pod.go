@@ -3,7 +3,7 @@ package pod
 import (
 	corev1 "k8s.io/api/core/v1"
 
-	c "github.com/stanistan/mutator/container"
+	c "github.com/stanistan/k8s-mutator/container"
 )
 
 func New(pod *corev1.Pod) Pod {

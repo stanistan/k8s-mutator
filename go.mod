@@ -1,4 +1,4 @@
-module github.com/stanistan/mutator
+module github.com/stanistan/k8s-mutator
 
 go 1.23.0
 

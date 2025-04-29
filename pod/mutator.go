@@ -3,9 +3,9 @@ package pod
 import (
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/stanistan/mutator/container"
-	"github.com/stanistan/mutator/internal/lens"
-	"github.com/stanistan/mutator/internal/lens/update"
+	"github.com/stanistan/k8s-mutator/container"
+	"github.com/stanistan/k8s-mutator/internal/lens"
+	"github.com/stanistan/k8s-mutator/internal/lens/update"
 )
 
 type Mutator interface {

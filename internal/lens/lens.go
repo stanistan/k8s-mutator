@@ -1,7 +1,7 @@
 package lens
 
 import (
-	"github.com/stanistan/mutator/internal/lens/update"
+	"github.com/stanistan/k8s-mutator/internal/lens/update"
 )
 
 // Lens is a datatype that abstracts over getting a value V
